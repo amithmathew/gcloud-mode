@@ -103,11 +103,13 @@
 
 (defun gcloud-get-configurations ()
   "Gets list of existing configurations."
+  (message "Getting gcloud configurations..."
   (split-string (gcloud-run-command "config" "configurations" "list" "--format=value(name)") "\n" t))
 
 
 (defun gcloud-get-projects-and-projectids (&optional limit)
   "Returns a simple list of alists with project name and project id."
+  (message "Getting gcloud projects..."
   (if limit
       (append (json-parse-string (gcloud-run-command "projects" "list" "--format=json(name,projectId)" "--limit" (number-to-string limit)) :object-type 'alist)) nil)
   (append (json-parse-string (gcloud-run-command "projects" "list" "--format=json(name,projectId)") :object-type 'alist) nil))
@@ -157,11 +159,13 @@
                 gcloud-active-projectid
                 gcloud-active-account
                 gcloud-active-config))
-  (concat mode-line-misc-info gcloud-modeline-string))
+  (add-to-list 'mode-line-misc-info gcloud-modeline-string :APPEND))
+
 
 (defun gcloud-modeline-delete()
   "Remove modeline information when mode is deactivated"
-  (setq mode-line-misc-info (replace-regexp-in-string gcloud-modeline-match-regex "" mode-line-misc-info)))
+  (setq-default mode-line-misc-info (cl-delete-if (lambda (x) (if (typep x 'string) (string-match-p gcloud-modeline-match-regex x))) mode-line-misc-info)))
+;  (setq mode-line-misc-info (replace-regexp-in-string gcloud-modeline-match-regex "" mode-line-misc-info))
 
 
 (defun gcloud-modeline-all-the-icons ()
